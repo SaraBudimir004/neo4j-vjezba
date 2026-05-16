@@ -241,3 +241,17 @@ MATCH (o:Osoba)-[:GLUMIO_U]->(f:Film)
 WITH f, collect(o.ime) AS glumci
 RETURN f.naslov AS film, glumci
 ORDER BY film
+
+//Korak7 - Kreiranje RANGE indeksa za pretragu filmova po ocjeni
+CREATE INDEX film_ocjena FOR (f:Film) ON (f.ocjena)
+CREATE INDEX film_naslov FOR (f:Film) ON (f.naslov)
+CREATE INDEX osoba_ime FOR (o:Osoba) ON (o.ime)
+
+//Korak7 - Kreiranje UNIQUENESS constraint-a — osigurava jedinstvenost naslova
+CREATE CONSTRAINT film_naslov_unique
+FOR (f:Film) REQUIRE f.naslov IS UNIQUE
+
+SHOW INDEXES
+SHOW CONSTRAINTS
+
+
