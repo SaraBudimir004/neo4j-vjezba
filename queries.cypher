@@ -190,3 +190,54 @@ MATCH (b:Osoba {ime: 'Leonardo DiCaprio'})
 RETURN EXISTS {
   MATCH (a)-[*1..4]-(b)
 } AS povezani
+
+//Korak6 - Broj filmova po žanru
+MATCH (f:Film)
+RETURN f.zanr AS zanr, count(f) AS broj_filmova
+ORDER BY broj_filmova DESC
+ 
+//Korak6 - Prosječna ocjena po žanru — samo žanrovi s više od jednog filma
+MATCH (f:Film)
+WITH f.zanr AS zanr, count(f) AS broj, avg(f.ocjena) AS prosjecna_ocjena
+WHERE broj > 1
+RETURN zanr, broj, round(prosjecna_ocjena * 10) / 10 AS ocjena
+ORDER BY prosjecna_ocjena DESC
+
+//Korak6 - Redatelji s brojem filmova i listom naslova
+MATCH (o:Osoba)-[:REZIRAO]->(f:Film)
+WITH o.ime AS redatelj, count(f) AS filmova, collect(f.naslov) AS naslovi
+RETURN redatelj, filmova, naslovi
+ORDER BY filmova DESC
+
+//Korak6 - Top 3 filma po ocjeni za svaki žanr
+MATCH (f:Film)
+WITH f.zanr AS zanr, f
+ORDER BY f.ocjena DESC
+WITH zanr, collect(f)[0..3] AS top_filmovi
+RETURN zanr,
+       [film IN top_filmovi | film.naslov + ' (' + toString(film.ocjena) + ')'] AS top3
+
+//Zadata6 
+//22. Ukupan broj filmova i prosjek ocjene
+MATCH (f:Film)
+RETURN count(f) AS broj_filmova, avg(f.ocjena) AS prosjecna_ocjena
+
+//23. broj filmova po žanru i max ocjena
+MATCH (f:Film)
+WITH f.zanr AS zanr, count(f) AS broj, max(f.ocjena) AS max_ocjena
+RETURN zanr, broj, max_ocjena
+ORDER BY broj DESC
+
+//24. Osoba u gradu s najviše ljudi
+MATCH (o:Osoba)-[:ZIVI_U]->(g:Grad)
+WITH g, count(o) AS broj_osoba
+ORDER BY broj_osoba DESC
+LIMIT 1
+MATCH (o2:Osoba)-[:ZIVI_U]->(g)
+RETURN o2.ime AS osoba, g.naziv AS grad
+
+//25. Glumci po filmovima
+MATCH (o:Osoba)-[:GLUMIO_U]->(f:Film)
+WITH f, collect(o.ime) AS glumci
+RETURN f.naslov AS film, glumci
+ORDER BY film
