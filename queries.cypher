@@ -145,3 +145,48 @@ MATCH (o:Osoba)-[:REZIRAO]->(f:Film)
 WITH o, count(f) AS brojFilmova
 WHERE brojFilmova > 1
 RETURN o.ime AS redatelj, brojFilmova
+
+//Korak5 - Varijabilna dužina puta — tko je u dvije veze od filma Inception
+MATCH (f:Film {naslov: 'Inception'})-[*1..2]-(n)
+RETURN DISTINCT labels(n) AS tip, n.naslov AS naslov, n.ime AS ime
+
+//Korak5 - Najkraći put između dvije osobe
+MATCH p = shortestPath(
+  (a:Osoba {ime: 'Christopher Nolan'})
+  -[*]-
+  (b:Osoba {ime: 'Bong Joon-ho'})
+)
+RETURN p, length(p) AS duljina_puta
+
+//Korak5 - Postoji li direktna veza između dviju osoba:
+MATCH (a:Osoba {ime: 'Leonardo DiCaprio'})
+MATCH (b:Osoba {ime: 'Christopher Nolan'})
+RETURN EXISTS {
+  MATCH (a)-[:PRIJATELJ|GLUMIO_U|ZIVI_U*1..3]-(b)
+} AS povezani
+
+//Korak5 - Svi putovi između dvije osobe — ne samo najkraći:
+MATCH p = (a:Osoba {ime: 'Leonardo DiCaprio'})
+          -[*1..4]-
+          (b:Osoba {ime: 'Bong Joon-ho'})
+RETURN p, length(p) AS duljina
+ORDER BY duljina
+LIMIT 5
+
+//Zadatak5
+//18.Najkraci put
+MATCH p = shortestPath(
+  (a:Osoba {ime: 'Leonardo DiCaprio'})-[*1..5]-(b:Osoba {ime: 'Bong Joon-ho'})
+)
+RETURN p, length(p) AS duljina
+
+//19. Cvorovi do 2 veze od Londona
+MATCH (g:Grad {naziv: 'London'})-[*1..2]-(n)
+RETURN DISTINCT labels(n), n.ime, n.naslov
+
+//20 — provjera povezanosti (4 koraka)
+MATCH (a:Osoba {ime: 'Francis Ford Coppola'})
+MATCH (b:Osoba {ime: 'Leonardo DiCaprio'})
+RETURN EXISTS {
+  MATCH (a)-[*1..4]-(b)
+} AS povezani
