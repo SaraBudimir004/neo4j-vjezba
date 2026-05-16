@@ -5,3 +5,8 @@ Neo4j koristi dva porta:
 
 Korak2
 CREATE uvijek napravi novi čvor ili vezu, čak i ako isti već postoji u bazi, pa može doći do duplikata. MERGE prvo provjeri postoji li već takav čvor ili veza, i ako postoji koristi ga, a ako ne postoji onda ga kreira. MERGE se koristi kada želimo izbjeći duplikate u bazi.
+
+Korak4/ Zadatak 4 (17)
+MATCH se koristi za traženje podataka u grafu i vraća samo one čvorove i veze koji stvarno postoje i odgovaraju uvjetu koji smo zadali. 
+OPTIONAL MATCH radi slično, ali će vratiti i čvorove koji nemaju povezane podatke, pa će za njih prikazati prazno ili null. 
+Npr, MATCH (o)-[:REZIRAO]->(f) prikazuje samo osobe koje su režirale film, dok OPTIONAL MATCH prikazuje sve osobe čak i ako nemaju nijedan film povezan s njima.

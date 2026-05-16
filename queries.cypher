@@ -72,8 +72,76 @@ CREATE (a)-[:PRIJATELJ {od: 2010}]->(b)
 MATCH (n)-[r]->(m) RETURN n, r, m
 
 //Zadatak3 
+//GLUMIO_U
 MATCH (o:Osoba {ime: 'Rade Šerbedžija'}), (f:Film {naslov: 'The Godfather'})
 CREATE (o)-[:GLUMIO_U]->(f)
 
 MATCH (o:Osoba {ime: 'Goran Višnjić'}), (f:Film {naslov: 'Inception'})
 CREATE (o)-[:GLUMIO_U]->(f)
+
+//ZIVI_U
+MATCH (o:Osoba {ime: 'Rade Šerbedžija'}), (g:Grad {naziv: 'Split'})
+CREATE (o)-[:ZIVI_U]->(g)
+
+MATCH ()-[r]->() RETURN type(r) AS tip, count(*) AS broj ORDER BY broj DESC
+
+MATCH (n)-[r]->(m) RETURN n,r,m
+
+//Korak4- MATCH upiti: čitanje i filtriranje
+
+//Svi filmovi u bazi
+MATCH (f:Film)
+RETURN f.naslov, f.godina, f.ocjena
+ORDER BY f.ocjena DESC
+
+//Filmovi s ocjenom većom od 8.7
+MATCH (f:Film)
+WHERE f.ocjena > 8.7
+RETURN f.naslov, f.ocjena
+ORDER BY f.ocjena DESC
+
+//Svi filmovi određenog redatelja
+MATCH (o:Osoba)-[:REZIRAO]->(f:Film)
+WHERE o.ime = 'Christopher Nolan'
+RETURN f.naslov, f.godina, f.ocjena
+ORDER BY f.godina
+
+//Tko je glumio u sci-fi filmovima
+MATCH (o:Osoba)-[:GLUMIO_U]->(f:Film)
+WHERE f.zanr = 'sci-fi'
+RETURN o.ime AS glumac, f.naslov AS film
+
+//Filmovi i njihovi redatelji — obostrani prikaz
+MATCH (o:Osoba)-[:REZIRAO]->(f:Film)
+RETURN o.ime AS redatelj, collect(f.naslov) AS filmovi
+ORDER BY redatelj
+
+//OPTIONAL MATCH — čvorovi koji možda nemaju vezu:
+MATCH (o:Osoba)
+OPTIONAL MATCH (o)-[:REZIRAO]->(f:Film)
+RETURN o.ime, count(f) AS broj_reziranih_filmova
+ORDER BY broj_reziranih_filmova DESC
+
+//Zadata4
+//13. filmovi žanra triler
+MATCH (f:Film)
+WHERE f.zanr = 'triler'
+RETURN f.naslov, f.godina, f.ocjena
+ORDER BY f.godina ASC
+
+//14. redatelj + grad u kojem živi
+MATCH (o:Osoba)-[:REZIRAO]->(f:Film)
+MATCH (o)-[:ZIVI_U]->(g:Grad)
+RETURN o.ime AS redatelj, g.naziv AS grad
+
+//15. filmovi 2008–2015
+MATCH (f:Film)
+WHERE f.godina >= 2008 AND f.godina <= 2015
+RETURN f.naslov, f.godina
+ORDER BY f.godina
+
+//16. redatelji s više od 1 filma
+MATCH (o:Osoba)-[:REZIRAO]->(f:Film)
+WITH o, count(f) AS brojFilmova
+WHERE brojFilmova > 1
+RETURN o.ime AS redatelj, brojFilmova
