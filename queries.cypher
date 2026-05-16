@@ -24,3 +24,56 @@ CREATE (o6:Osoba {ime: 'Rade Šerbedžija', dob: 78})
 CREATE (o7:Osoba {ime: 'Goran Višnjić', dob: 52})
 7. Dodavanje grada
 CREATE (g4:Grad {naziv: 'Split'})
+
+// Korak 3 - Kreiranje veza REZIRAO
+MATCH (o:Osoba {ime: 'Christopher Nolan'}), (f:Film {naslov: 'Inception'})
+CREATE (o)-[:REZIRAO]->(f)
+
+MATCH (o:Osoba {ime: 'Christopher Nolan'}), (f:Film {naslov: 'The Dark Knight'})
+CREATE (o)-[:REZIRAO]->(f)
+
+MATCH (o:Osoba {ime: 'Christopher Nolan'}), (f:Film {naslov: 'Interstellar'})
+CREATE (o)-[:REZIRAO]->(f)
+
+MATCH (o:Osoba {ime: 'Christopher Nolan'}), (f:Film {naslov: 'Memento'})
+CREATE (o)-[:REZIRAO]->(f)
+
+MATCH (o:Osoba {ime: 'Bong Joon-ho'}), (f:Film {naslov: 'Parasite'})
+CREATE (o)-[:REZIRAO]->(f)
+
+MATCH (o:Osoba {ime: 'Francis Ford Coppola'}), (f:Film {naslov: 'The Godfather'})
+CREATE (o)-[:REZIRAO]->(f)
+
+
+// Korak3 - Kreiranje veza GLUMIO_U
+MATCH (o:Osoba {ime: 'Leonardo DiCaprio'}), (f:Film {naslov: 'Inception'})
+CREATE (o)-[:GLUMIO_U]->(f)
+
+MATCH (o:Osoba {ime: 'Christian Bale'}), (f:Film {naslov: 'The Dark Knight'})
+CREATE (o)-[:GLUMIO_U]->(f)
+
+// Korak3 - Kreiranje veza ZIVI_U:
+MATCH (o:Osoba {ime: 'Christopher Nolan'}), (g:Grad {naziv: 'London'})
+CREATE (o)-[:ZIVI_U]->(g)
+
+MATCH (o:Osoba {ime: 'Leonardo DiCaprio'}), (g:Grad {naziv: 'Los Angeles'})
+CREATE (o)-[:ZIVI_U]->(g)
+
+MATCH (o:Osoba {ime: 'Bong Joon-ho'}), (g:Grad {naziv: 'Seoul'})
+CREATE (o)-[:ZIVI_U]->(g)
+
+// Korak3 - Kreiranje veza PRIJATELJ (s property-em)
+MATCH (a:Osoba {ime: 'Christopher Nolan'}), (b:Osoba {ime: 'Christian Bale'})
+CREATE (a)-[:PRIJATELJ {od: 2000}]->(b)
+
+MATCH (a:Osoba {ime: 'Leonardo DiCaprio'}), (b:Osoba {ime: 'Christopher Nolan'})
+CREATE (a)-[:PRIJATELJ {od: 2010}]->(b)
+
+MATCH (n)-[r]->(m) RETURN n, r, m
+
+//Zadatak3 
+MATCH (o:Osoba {ime: 'Rade Šerbedžija'}), (f:Film {naslov: 'The Godfather'})
+CREATE (o)-[:GLUMIO_U]->(f)
+
+MATCH (o:Osoba {ime: 'Goran Višnjić'}), (f:Film {naslov: 'Inception'})
+CREATE (o)-[:GLUMIO_U]->(f)
