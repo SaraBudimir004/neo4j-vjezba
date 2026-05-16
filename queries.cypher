@@ -254,4 +254,123 @@ FOR (f:Film) REQUIRE f.naslov IS UNIQUE
 SHOW INDEXES
 SHOW CONSTRAINTS
 
+//ZAVRSNI ZADATAK 
+//IZVODACI 
+CREATE (i1:Izvodac {ime: 'Oliver Dragojević', drzava: 'Hrvatska', godina_osnivanja: 1967})
+CREATE (i2:Izvodac {ime: 'Gibonni', drzava: 'Hrvatska', godina_osnivanja: 1980})
+CREATE (i3:Izvodac {ime: 'Severina', drzava: 'Hrvatska', godina_osnivanja: 1990})
+CREATE (i4:Izvodac {ime: 'Tose Proeski', drzava: 'Makedonija', godina_osnivanja: 1995})
+CREATE (i5:Izvodac {ime: 'Dino Merlin', drzava: 'BiH', godina_osnivanja: 1983})
+CREATE (i6:Izvodac {ime: 'Zdravko Colic', drzava: 'Srbija', godina_osnivanja: 1970})
 
+MATCH (i:Izvodac)
+RETURN i.ime, i.drzava, i.godina_osnivanja
+
+//ALBUMI
+CREATE (a1:Album {naziv: 'Cesarica', godina: 1993, ocjena: 9.2})
+CREATE (a2:Album {naziv: 'Mirakul', godina: 2001, ocjena: 8.8})
+CREATE (a3:Album {naziv: 'Uspavanka', godina: 2012, ocjena: 8.5})
+CREATE (a4:Album {naziv: 'Prijatelju moj', godina: 2000, ocjena: 7.9})
+CREATE (a5:Album {naziv: 'Opet si pobijedila', godina: 2003, ocjena: 8.1})
+CREATE (a6:Album {naziv: 'Balkan', godina: 2014, ocjena: 9.0})
+CREATE (a7:Album {naziv: 'Ivana', godina: 1995, ocjena: 7.5})
+CREATE (a8:Album {naziv: 'Pao snijeg', godina: 2005, ocjena: 8.3})
+CREATE (a9:Album {naziv: 'Zajedno smo jaci', godina: 2010, ocjena: 8.7})
+CREATE (a10:Album {naziv: 'Tamo gdje ljubav pocinje', godina: 1998, ocjena: 8.0})
+
+MATCH (a:Album)
+RETURN a.naziv, a.godina, a.ocjena
+
+//ZANR 
+CREATE (z1:Zanr {naziv: 'pop'})
+CREATE (z2:Zanr {naziv: 'rock'})
+CREATE (z3:Zanr {naziv: 'folk'})
+CREATE (z4:Zanr {naziv: 'balada'})
+
+MATCH (z:Zanr)
+RETURN z.naziv
+
+//OBJAVIO
+MATCH (i:Izvodac {ime:'Oliver Dragojević'}), (a:Album {naziv:'Cesarica'})
+CREATE (i)-[:OBJAVIO]->(a)
+MATCH (i:Izvodac {ime:'Oliver Dragojević'}), (a:Album {naziv:'Mirakul'})
+CREATE (i)-[:OBJAVIO]->(a)
+MATCH (i:Izvodac {ime:'Gibonni'}), (a:Album {naziv:'Uspavanka'})
+CREATE (i)-[:OBJAVIO]->(a)
+MATCH (i:Izvodac {ime:'Severina'}), (a:Album {naziv:'Opet si pobijedila'})
+CREATE (i)-[:OBJAVIO]->(a)
+MATCH (i:Izvodac {ime:'Dino Merlin'}), (a:Album {naziv:'Balkan'})
+CREATE (i)-[:OBJAVIO]->(a)
+MATCH (i:Izvodac {ime:'Zdravko Colic'}), (a:Album {naziv:'Ivana'})
+CREATE (i)-[:OBJAVIO]->(a)
+MATCH (i:Izvodac {ime:'Tose Proeski'}), (a:Album {naziv:'Pao snijeg'})
+CREATE (i)-[:OBJAVIO]->(a)
+MATCH (i:Izvodac {ime:'Gibonni'}), (a:Album {naziv:'Zajedno smo jaci'})
+CREATE (i)-[:OBJAVIO]->(a)
+MATCH (i:Izvodac {ime:'Severina'}), (a:Album {naziv:'Tamo gdje ljubav pocinje'})
+CREATE (i)-[:OBJAVIO]->(a)
+MATCH (i:Izvodac {ime:'Dino Merlin'}), (a:Album {naziv:'Prijatelju moj'})
+CREATE (i)-[:OBJAVIO]->(a)
+
+MATCH (i:Izvodac)-[r:OBJAVIO]->(a:Album)
+RETURN i.ime, a.naziv
+
+//SLICAN
+MATCH (a:Izvodac {ime:'Oliver Dragojević'}), (b:Izvodac {ime:'Gibonni'})
+CREATE (a)-[:SLICAN]->(b)
+MATCH (a:Izvodac {ime:'Severina'}), (b:Izvodac {ime:'Dino Merlin'})
+CREATE (a)-[:SLICAN]->(b)
+MATCH (a:Izvodac {ime:'Tose Proeski'}), (b:Izvodac {ime:'Zdravko Colic'})
+CREATE (a)-[:SLICAN]->(b)
+MATCH (a:Izvodac {ime:'Gibonni'}), (b:Izvodac {ime:'Dino Merlin'})
+CREATE (a)-[:SLICAN]->(b)
+
+MATCH (a:Izvodac)-[r:SLICAN]->(b:Izvodac)
+RETURN a.ime, b.ime
+
+//SURADIVO S 
+MATCH (a:Izvodac {ime:'Oliver Dragojević'}), (b:Izvodac {ime:'Gibonni'})
+CREATE (a)-[:SURADIVAO_S]->(b)
+MATCH (a:Izvodac {ime:'Severina'}), (b:Izvodac {ime:'Tose Proeski'})
+CREATE (a)-[:SURADIVAO_S]->(b)
+
+MATCH (a:Izvodac)-[r:SURADIVAO_S]->(b:Izvodac)
+RETURN a.ime, b.ime
+
+// 1 - albumi izvođača po godini
+MATCH (i:Izvodac {ime: 'Oliver Dragojević'})-[:OBJAVIO]->(a:Album)
+RETURN a.naziv, a.godina, a.ocjena
+ORDER BY a.godina
+
+// 2 - albumi s ocjenom većom od 8
+MATCH (a:Album)
+WHERE a.ocjena > 8.0
+RETURN a.naziv, a.ocjena
+ORDER BY a.ocjena DESC
+
+// 3 - broj albuma po izvođaču 
+MATCH (i:Izvodac)
+OPTIONAL MATCH (i)-[:OBJAVIO]->(a:Album)
+RETURN i.ime, count(a) AS broj_albuma
+ORDER BY broj_albuma DESC
+
+// 4 - najkraći put između dva izvođača
+MATCH p = shortestPath(
+  (a:Izvodac {ime: 'Oliver Dragojević'})-[*..4]-(b:Izvodac {ime: 'Dino Merlin'})
+)
+RETURN p
+
+// 5 - broj albuma i prosječna ocjena po žanru
+MATCH (a:Album)-[:PRIPADA_ZANRU]->(z:Zanr)
+WITH z.naziv AS zanr, count(a) AS broj, avg(a.ocjena) AS prosjek
+WHERE prosjek > 7.5
+RETURN zanr, broj, round(prosjek, 2) AS prosjek
+ORDER BY prosjek DESC
+
+// UNIQUE constraint
+CREATE CONSTRAINT izvodac_ime_unique
+FOR (i:Izvodac) REQUIRE i.ime IS UNIQUE;
+
+// INDEX
+CREATE INDEX album_ocjena_index
+FOR (a:Album) ON (a.ocjena);
